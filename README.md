@@ -21,6 +21,7 @@ Served by the Vercel project `japan-trip-map`, from the `src/` directory.
 ## Deploy verification
 
 Pipeline test: push to `main` → Vercel auto-deploy (verified 2026-10-08).
+Public-repo deploy test (2026-10-08).
 
 ## Notes
 
