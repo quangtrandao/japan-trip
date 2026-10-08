@@ -34,3 +34,23 @@ tokyo-2.jpg	Unsplash	Jezael Melgoza	https://unsplash.com/photos/cars-in-neon-shi
 tokyo-3.jpg	Unsplash	Jezael Melgoza	https://unsplash.com/photos/white-and-red-buss-on-the-middle-of-crossing-street-photo-NiyRORf8d8I
 shinhotaka-ropeway-2.jpg	Unsplash	Novel Saleh	https://unsplash.com/photos/a-cable-car-going-up-a-hill-with-mountains-in-the-background-vJyLETSgDlw
 shinhotaka-ropeway-3.jpg	Unsplash	Zion C	https://unsplash.com/photos/a-scenic-view-of-a-mountain-range-with-a-body-of-water-in-the-distance-mIUWj_1zKUM
+
+# Regional dishes (Unsplash)
+osaka-food-1.jpg	Takoyaki	Unsplash	Mikey Frost	https://unsplash.com/photos/a-person-holding-chopsticks-with-food-on-them-MG482Xp71ys
+osaka-food-2.jpg	Okonomiyaki	Unsplash	Guillaume Coué	https://unsplash.com/photos/pasta-on-black-ceramic-plate-Km99aOxh96E
+gero-onsen-food-1.jpg	Hida beef	Unsplash	Madie Hamilton	https://unsplash.com/photos/sliced-meat-on-brown-paper-GXehL5_crJ4
+gero-onsen-food-2.jpg	Keichan chicken	Unsplash	Elena Leya	https://unsplash.com/photos/chicken-breast-dinner-with-peas-DBVIb_rWUKw
+takayama-food-1.jpg	Hida beef sushi	Unsplash	sati	https://unsplash.com/photos/a-close-up-of-chopsticks-in-a-bowl-of-food-3PxolWyiWA4
+takayama-food-2.jpg	Hida soba	Unsplash	Orijit Chatterjee	https://unsplash.com/photos/stir-fried-noodles-with-vegetables-wEBg_pYtynw
+shinhotaka-ropeway-food-1.jpg	Hoba miso	Unsplash	Crystal Jo	https://unsplash.com/photos/ramen-dish-on-brown-ceramic-bowl-TWTxHN2QIGc
+shinhotaka-ropeway-food-2.jpg	Sansai tempura	Unsplash	Yosuke Ota	https://unsplash.com/photos/a-bowl-of-food-next-to-a-bowl-of-soup-yVKwbc0LKyI
+matsumoto-food-1.jpg	Unsplash	Mario Verduzco	https://unsplash.com/photos/a-close-up-of-a-bowl-of-noodles-with-a-fork-in-it-nk_TmYfS24I
+matsumoto-food-2.jpg	Oyaki	Unsplash	Martin	https://unsplash.com/photos/brown-and-white-pastry-on-brown-wooden-table-qKgfQR7-dzM
+kamikochi-food-1.jpg	Unsplash	Hanxiao Xu	https://unsplash.com/photos/pasta-dish-on-black-plate-hJKJQrsNHGQ
+kamikochi-food-2.jpg	Soft cream	Unsplash	Courtney Cook	https://unsplash.com/photos/ice-cream-cone-with-sprinkles-QYsRxRPygwU
+kyoto-food-1.jpg	Yudofu	Unsplash	Nqobile Vundla	https://unsplash.com/photos/man-in-blue-crew-neck-t-shirt-standing-beside-wall-with-graffiti-nP21QwP7rBM
+kyoto-food-2.jpg	Matcha	Unsplash	Jason Leung	https://unsplash.com/photos/white-ceramic-teacup-filled-of-matcha-tea-Z-hvocTfR_s
+nagano-food-1.jpg	Unsplash	You Le	https://unsplash.com/photos/steaming-buns-in-a-bamboo-steamer-basket-98eCn1lH_gI
+nagano-food-2.jpg	Nagano apple	Unsplash	Matheus Cenali	https://unsplash.com/photos/bunch-of-red-apples-wXuzS9xR49M
+tokyo-food-1.jpg	Sushi	Unsplash	Mahmoud Fawzy	https://unsplash.com/photos/sushi-on-black-square-plate-Dbx6-XZY6Dg
+tokyo-food-2.jpg	Monjayaki	Unsplash	Fidel Fernando	https://unsplash.com/photos/a-busy-city-street-filled-with-lots-of-traffic-SAsabDPiWQc
