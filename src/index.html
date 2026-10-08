@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Japan Trip – Osaka to Tokyo (OpenStreetMap)</title>
+<title>Hokuriku 2</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
 <style>
 html,body{height:100%;margin:0;font:14px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif;color:#1f2328}
@@ -13,6 +13,8 @@ html,body{height:100%;margin:0;font:14px/1.45 system-ui,-apple-system,"Segoe UI"
 .legend i{display:inline-block;width:22px;height:5px;border-radius:3px;margin-right:6px;vertical-align:middle}
 .stop{width:20px;height:20px;border-radius:50%;background:#fff;border:4px solid #1f2328;box-sizing:border-box}
 .stop.t{width:14px;height:14px;border:3px solid #6b7280}
+.hl .stop{background:#f59e0b;border-color:#b45309;box-shadow:0 0 0 5px rgba(245,158,11,.35)}
+#stay-sel{font:inherit;font-size:12px;border:0;background:transparent;color:inherit;max-width:210px}
 .lbl{background:rgba(255,255,255,.85);border:0;box-shadow:none;font-weight:700;padding:1px 5px}
 .pop{width:250px}.pop .ph{height:115px;margin:-1px -1px 8px;border-radius:10px 10px 0 0;background:#eee center/cover;display:flex;align-items:center;justify-content:center;color:#888;font-size:12px}
 .pop h3{margin:0}.pop .rg{color:#6b7280;font-size:12px;margin-bottom:6px}
@@ -28,7 +30,7 @@ html,body{height:100%;margin:0;font:14px/1.45 system-ui,-apple-system,"Segoe UI"
 .none{height:100%;display:flex;align-items:center;justify-content:center;color:#888;font-size:12px}
 .leaflet-tooltip.leg{font-size:13px;line-height:1.4}.tt{display:block;width:190px;height:95px;object-fit:cover;border-radius:6px;margin-bottom:4px}
 </style></head><body>
-<div id="bar"><div class="pill"><b>Japan trip · Osaka → Tokyo · 13 days</b></div><div class="pill" id="stats"></div></div>
+<div id="bar"><div class="pill"><b>Hokuriku 2</b></div><div class="pill"><label>Stay: <select id="stay-sel"></select></label></div><div class="pill" id="stats"></div></div>
 <div id="map"></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script>
@@ -61,7 +63,7 @@ const dur=m=>m>=60?Math.floor(m/60)+"h"+(m%60?String(m%60).padStart(2,"0"):""):m
 const L_=k=>{const v=PIC[k];return Array.isArray(v)?v:(v?[v]:[])};
 const info=(a,from,to,each)=>({tn:a.tn||a.t,t:a.t,m:a.m,tc:a.tc,route:from+" \u2192 "+to,each});
 const legTip=(i,k)=>{const p=L_(k)[0];return `${p?`<img class="tt" src="${p}" alt="">`:""}<b>${i.tn}</b><br>${i.route}<br>${i.t} \u00b7 ${dur(i.m)}${i.each?" each way":""}<br>${i.tc!=null?yen(i.tc)+" (est.)":"cost n/a"}<br><i>Click for details and pictures</i>`};
-function carHTML(list){return `<div class="car">${list.length?`<div class="trk">${list.map(u=>`<img src="${u}" alt="">`).join("")}</div>${list.length>1?`<button class="nv pv">\u2039</button><button class="nv nx">\u203a</button>`:""}<span class="ct">1/${list.length}</span>`:`<div class="none">No picture yet</div>`}</div>`}
+function carHTML(list){return `<div class="car">${list.length?`<div class="trk">${list.map(u=>`<img src="${u}" alt="">`).join("")}</div><span class="ct">1/${list.length}</span>`:`<div class="none">No picture yet</div>`}</div>`}
 function wireCar(d,list){
  const trk=d.querySelector(".trk"),ct=d.querySelector(".ct");
  if(trk){
@@ -131,5 +133,9 @@ const all=STOPS.concat(TRIPS);
 document.getElementById("stats").innerHTML=`${STOPS.reduce((a,s)=>a+s.n,0)} nights · ${yen(all.reduce((a,s)=>a+s.b,0))} total budget · ${dur(STOPS.reduce((a,s)=>a+s.m,0))} in transit · ~${yen(STOPS.reduce((a,s)=>a+(s.tc||0),0)+2*TRIPS.reduce((a,s)=>a+(s.tc||0),0))} transport (est.)`;
 const lg=L.control({position:"bottomleft"});lg.onAdd=()=>{const d=L.DomUtil.create("div","legend");
  d.innerHTML=Object.keys(COL).filter(k=>all.some(s=>s.t===k)).map(k=>`<div><i style="background:${COL[k]}"></i>${k}</div>`).join("")+"<div style='color:#6b7280;margin-top:4px'>Dashed = day trip. Hover a line for transport, time and cost; click it for pictures.</div>";return d};lg.addTo(map);
+const PERIODS={"Osaka":"Nov 1–3","Gero Onsen":"Nov 3","Takayama":"Nov 4–7","Matsumoto":"Nov 7–10","Tokyo":"Nov 10–13"};
+const psel=document.getElementById("stay-sel");
+Object.keys(PERIODS).forEach(c=>{const o=document.createElement("option");o.value=c;o.textContent=c+" · "+PERIODS[c];psel.appendChild(o)});
+psel.onchange=()=>{STOPS.forEach(s=>{if(s.mk)s.mk.getElement().classList.remove("hl")});const s=STOPS.find(x=>x.c===psel.value);if(s&&s.mk){s.mk.getElement().classList.add("hl");s.mk.openPopup();map.panTo(s.ll)}};
 map.fitBounds(L.latLngBounds(STOPS.map(s=>s.ll)).pad(.15));
 </script></body></html>
