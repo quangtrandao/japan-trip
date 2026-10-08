@@ -20,8 +20,8 @@ html,body{height:100%;margin:0;font:14px/1.45 system-ui,-apple-system,"Segoe UI"
 .pop button,.pop a{font:inherit;font-size:12px;margin:8px 6px 0 0;padding:4px 8px;border:1px solid #d0d0d0;border-radius:7px;background:#f7f7f7;color:#1f2328;cursor:pointer;text-decoration:none;display:inline-block}
 .leaflet-popup-content{margin:12px 14px}
 .car{position:relative;height:130px;margin:-1px -1px 8px;border-radius:10px 10px 0 0;overflow:hidden;background:#eee}
-.trk{display:flex;height:100%;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none}.trk::-webkit-scrollbar{display:none}
-.trk img{flex:0 0 100%;width:100%;height:100%;object-fit:cover;scroll-snap-align:center}
+.trk{display:flex;height:100%;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;cursor:grab;touch-action:pan-x;-webkit-user-select:none;user-select:none}.trk::-webkit-scrollbar{display:none}.trk.dragging{cursor:grabbing;scroll-snap-type:none}
+.trk img{flex:0 0 100%;width:100%;height:100%;object-fit:cover;scroll-snap-align:center;-webkit-user-drag:none;user-select:none;pointer-events:none}
 .pop .nv{position:absolute;top:50%;transform:translateY(-50%);margin:0;width:26px;height:26px;padding:0;border-radius:50%;background:rgba(255,255,255,.85);font-size:16px;line-height:1}
 .pop .pv{left:6px}.pop .nx{right:6px}
 .ct{position:absolute;bottom:6px;right:8px;background:rgba(0,0,0,.55);color:#fff;font-size:11px;padding:1px 6px;border-radius:8px}
@@ -62,24 +62,30 @@ const L_=k=>{const v=PIC[k];return Array.isArray(v)?v:(v?[v]:[])};
 const info=(a,from,to,each)=>({tn:a.tn||a.t,t:a.t,m:a.m,tc:a.tc,route:from+" \u2192 "+to,each});
 const legTip=(i,k)=>{const p=L_(k)[0];return `${p?`<img class="tt" src="${p}" alt="">`:""}<b>${i.tn}</b><br>${i.route}<br>${i.t} \u00b7 ${dur(i.m)}${i.each?" each way":""}<br>${i.tc!=null?yen(i.tc)+" (est.)":"cost n/a"}<br><i>Click for details and pictures</i>`};
 function carHTML(list){return `<div class="car">${list.length?`<div class="trk">${list.map(u=>`<img src="${u}" alt="">`).join("")}</div>${list.length>1?`<button class="nv pv">\u2039</button><button class="nv nx">\u203a</button>`:""}<span class="ct">1/${list.length}</span>`:`<div class="none">No picture yet</div>`}</div>`}
-function wireCar(d,key,L0,list,redraw){
- const trk=d.querySelector(".trk"),ct=d.querySelector(".ct"),idx=()=>trk?Math.round(trk.scrollLeft/trk.clientWidth):0;
- if(trk){trk.onscroll=()=>{ct.textContent=(idx()+1)+"/"+list.length};
+function wireCar(d,list){
+ const trk=d.querySelector(".trk"),ct=d.querySelector(".ct");
+ if(trk){
+  const idx=()=>Math.round(trk.scrollLeft/trk.clientWidth);
+  trk.addEventListener("scroll",()=>{if(ct)ct.textContent=(idx()+1)+"/"+list.length},{passive:true});
   const pv=d.querySelector(".pv"),nx=d.querySelector(".nx");
-  if(pv){pv.onclick=()=>trk.scrollBy({left:-trk.clientWidth,behavior:"smooth"});nx.onclick=()=>trk.scrollBy({left:trk.clientWidth,behavior:"smooth"})}}
- const fi=d.querySelector("input");d.querySelector(".ad").onclick=()=>fi.click();
- const rm=d.querySelector(".rm");if(rm)rm.onclick=()=>{const i=idx()-L0,a=L_(key);if(i<0){alert("This picture comes from the data file.");return}a.splice(i,1);PIC[key]=a;savePics();redraw()};
- fi.onchange=async()=>{const a=L_(key);
-  for(const f of fi.files){await new Promise(res=>{const im=new Image();im.onload=()=>{const c=document.createElement("canvas"),sc=Math.min(1,640/im.width);c.width=im.width*sc;c.height=im.height*sc;c.getContext("2d").drawImage(im,0,0,c.width,c.height);a.push(c.toDataURL("image/jpeg",.8));res()};im.onerror=res;im.src=URL.createObjectURL(f)})}
-  PIC[key]=a;savePics();redraw()}}
+  if(pv)pv.onclick=e=>{e.stopPropagation();trk.scrollBy({left:-trk.clientWidth,behavior:"smooth"})};
+  if(nx)nx.onclick=e=>{e.stopPropagation();trk.scrollBy({left:trk.clientWidth,behavior:"smooth"})};
+  let drag=false,sx=0,s0=0,moved=0;
+  trk.addEventListener("dragstart",e=>e.preventDefault());
+  trk.addEventListener("pointerdown",e=>{if(e.pointerType!=="mouse")return;drag=true;moved=0;sx=e.clientX;s0=trk.scrollLeft;trk.classList.add("dragging");try{trk.setPointerCapture(e.pointerId)}catch(_){}e.preventDefault()});
+  trk.addEventListener("pointermove",e=>{if(!drag)return;const dx=e.clientX-sx;moved=Math.max(moved,Math.abs(dx));trk.scrollLeft=s0-dx});
+  const end=()=>{if(!drag)return;drag=false;trk.classList.remove("dragging");if(moved>6)trk.scrollTo({left:Math.round(trk.scrollLeft/trk.clientWidth)*trk.clientWidth,behavior:"smooth"});moved=0};
+  trk.addEventListener("pointerup",end);trk.addEventListener("pointercancel",end);
+ }
+ if(window.L&&L.DomEvent)L.DomEvent.disableClickPropagation(d);
+}
 function legCard(i,k,gurl,ln){const d=document.createElement("div");d.className="pop";const list=L_(k);
- d.innerHTML=carHTML(list)+`<h3>${i.tn}</h3><div class="rg">${i.route}</div><dl><dt>Type</dt><dd>${i.t}</dd><dt>Time</dt><dd>${dur(i.m)}${i.each?" each way":""}</dd><dt>Cost</dt><dd>${i.tc!=null?yen(i.tc)+" (est.)":"n/a"}</dd></dl><button class="ad">Add pictures</button>${list.length?"<button class='rm'>Remove this one</button>":""}<a href="${gurl}" target="_blank" rel="noopener">Google Maps</a><input type="file" accept="image/*" multiple hidden>`;
- wireCar(d,k,0,list,()=>ln.setPopupContent(legCard(i,k,gurl,ln)));return d}
+ d.innerHTML=carHTML(list)+`<h3>${i.tn}</h3><div class="rg">${i.route}</div><dl><dt>Type</dt><dd>${i.t}</dd><dt>Time</dt><dd>${dur(i.m)}${i.each?" each way":""}</dd><dt>Cost</dt><dd>${i.tc!=null?yen(i.tc)+" (est.)":"n/a"}</dd></dl><a href="${gurl}" target="_blank" rel="noopener">Google Maps</a>`;
+ wireCar(d,list);return d}
 function attach(ln,i,k,gurl){ln.bindTooltip(()=>legTip(i,k),{sticky:true,className:"leg"});ln.bindPopup(()=>legCard(i,k,gurl,ln),{maxWidth:280});hov(ln)}
 const hov=l=>{l.on("mouseover",()=>l.setStyle({weight:l.options.weight+4}));l.on("mouseout",()=>l.setStyle({weight:l.options.weight-4}))};
 const gm=(a,b)=>`https://www.google.com/maps/dir/?api=1&origin=${a.ll}&destination=${b.ll}&travelmode=transit`;
-let PIC={};try{PIC=JSON.parse(localStorage.getItem("jp-pics")||"{}")}catch(e){}
-const savePics=()=>{try{localStorage.setItem("jp-pics",JSON.stringify(PIC))}catch(e){alert("Could not save picture in this browser.")}};
+const PIC={};
 const map=L.map("map",{zoomControl:true}).setView([35.9,137.0],7);
 const CK="cb1_4dt6_1_b5fc5b5204dd3e9d89b2b612"; // CARTO key: visible in page source, keep the site private or restrict the key by domain
 const OSM="© OpenStreetMap contributors",CA=OSM+' © <a href="https://carto.com/attributions">CARTO</a>';
@@ -103,13 +109,12 @@ async function leg(a,b,dashed){
  attach(l,info(a,a.c,b.c,false),"leg:"+a.c+">"+b.c,gm(a,b));return l}
 const hotel=s=>{if(!s.hd)return s.acc+" <i>(not booked)</i>";const u=s.hu||`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(s.acc+" "+s.c)}`;return `<a class="hl" href="${u}" target="_blank" rel="noopener">${s.acc}</a>`};
 function card(s){const d=document.createElement("div");d.className="pop";
- const L0=(s.pics||[]).length,list=(s.pics||[]).concat(L_(s.c));
+ const list=(s.pics||[]);
  d.innerHTML=carHTML(list)+`<h3>${s.c}</h3><div class="rg">${s.r} · ${s.base?"Day trip from "+s.base:s.n+" night"+(s.n>1?"s":"")}</div>
  <dl>${s.base?"":`<dt>Stay</dt><dd>${hotel(s)} (${yen(s.ac)})</dd>`}<dt>Do</dt><dd>${s.act}</dd><dt>Budget</dt><dd><b>${yen(s.b)}</b></dd>
  ${s.t?`<dt>${s.base?"Travel":"Next"}</dt><dd>${s.tn||s.t}, ${dur(s.m)}${s.base?" each way":""}${s.tc!=null?", "+yen(s.tc)+" est.":""}</dd>`:""}</dl>
- <button class="ad">Add pictures</button>${L_(s.c).length?"<button class='rm'>Remove this one</button>":""}<a href="${NOTION_URL}" target="_blank" rel="noopener">Edit in Notion</a>
- <input type="file" accept="image/*" multiple hidden>`;
- wireCar(d,s.c,L0,list,()=>s.mk.setPopupContent(card(s)));return d}
+ `;
+ wireCar(d,list);return d}
 (async()=>{
  for(let i=0;i<STOPS.length-1;i++)await leg(STOPS[i],STOPS[i+1],false);
  for(const t of TRIPS){const b=STOPS.find(s=>s.c===t.base);const k=b.c+">"+t.c;
