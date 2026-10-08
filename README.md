@@ -28,3 +28,5 @@ Public-repo deploy test (2026-10-08).
 - Day-trip photos and stop photos are referenced as `img/*.jpg`.
 - The CARTO API key is embedded in the page source; keep the site private or
   restrict the key by domain in the CARTO dashboard.
+
+Rebuild with output directory = src (2026-10-08).
