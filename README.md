@@ -18,6 +18,10 @@ database **"Hokuriku 2 – November 2027"**.
 
 Served by the Vercel project `japan-trip-map`, from the `src/` directory.
 
+## Deploy verification
+
+Pipeline test: push to `main` → Vercel auto-deploy (verified 2026-10-08).
+
 ## Notes
 
 - Day-trip photos and stop photos are referenced as `img/*.jpg`.
