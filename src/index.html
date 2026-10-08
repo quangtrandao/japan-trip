@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Japan Trip – Osaka to Tokyo (OpenStreetMap)</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<style>
+html,body{height:100%;margin:0;font:14px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif;color:#1f2328}
+#bar{position:absolute;z-index:1000;top:10px;left:56px;right:10px;display:flex;gap:8px;flex-wrap:wrap;pointer-events:none}
+.pill{background:#fff;border-radius:10px;padding:6px 12px;box-shadow:0 2px 8px rgba(0,0,0,.2);pointer-events:auto}
+.pill b{font-size:15px}
+#map{height:100%}
+.legend{background:#fff;padding:8px 12px;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,.2);font-size:13px}
+.legend i{display:inline-block;width:22px;height:5px;border-radius:3px;margin-right:6px;vertical-align:middle}
+.stop{width:20px;height:20px;border-radius:50%;background:#fff;border:4px solid #1f2328;box-sizing:border-box}
+.stop.t{width:14px;height:14px;border:3px solid #6b7280}
+.lbl{background:rgba(255,255,255,.85);border:0;box-shadow:none;font-weight:700;padding:1px 5px}
+.pop{width:250px}.pop .ph{height:115px;margin:-1px -1px 8px;border-radius:10px 10px 0 0;background:#eee center/cover;display:flex;align-items:center;justify-content:center;color:#888;font-size:12px}
+.pop h3{margin:0}.pop .rg{color:#6b7280;font-size:12px;margin-bottom:6px}
+.pop dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:3px 10px}.pop dt{color:#6b7280}.pop dd{margin:0}
+.pop button,.pop a{font:inherit;font-size:12px;margin:8px 6px 0 0;padding:4px 8px;border:1px solid #d0d0d0;border-radius:7px;background:#f7f7f7;color:#1f2328;cursor:pointer;text-decoration:none;display:inline-block}
+.leaflet-popup-content{margin:12px 14px}
+.car{position:relative;height:130px;margin:-1px -1px 8px;border-radius:10px 10px 0 0;overflow:hidden;background:#eee}
+.trk{display:flex;height:100%;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none}.trk::-webkit-scrollbar{display:none}
+.trk img{flex:0 0 100%;width:100%;height:100%;object-fit:cover;scroll-snap-align:center}
+.pop .nv{position:absolute;top:50%;transform:translateY(-50%);margin:0;width:26px;height:26px;padding:0;border-radius:50%;background:rgba(255,255,255,.85);font-size:16px;line-height:1}
+.pop .pv{left:6px}.pop .nx{right:6px}
+.ct{position:absolute;bottom:6px;right:8px;background:rgba(0,0,0,.55);color:#fff;font-size:11px;padding:1px 6px;border-radius:8px}
+.none{height:100%;display:flex;align-items:center;justify-content:center;color:#888;font-size:12px}
+.leaflet-tooltip.leg{font-size:13px;line-height:1.4}.tt{display:block;width:190px;height:95px;object-fit:cover;border-radius:6px;margin-bottom:4px}
+</style></head><body>
+<div id="bar"><div class="pill"><b>Japan trip · Osaka → Tokyo · 13 days</b></div><div class="pill" id="stats"></div></div>
+<div id="map"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script>
+// Generated from the Notion database "Hokuriku 2 – November 2027". Edit there, then regenerate this file.
+const NOTION_URL="https://app.notion.com/p/a559ab993b314d3fb9c5aa452c4c5fcd";
+const STOPS=[
+{hd:1,hu:"https://maps.app.goo.gl/UAEiyHrEUiGCZ4688",pics:["img/osaka-1.jpg"],tn:"JR Tokaido Line + Hida Limited Express",tc:6500,c:"Osaka",r:"Kansai",ll:[34.69,135.5],n:2,acc:"Candeo Hotels",ac:30000,act:"Day 1: arrive, easy day. Day 2: Kyoto day trip (one area)",b:60000,t:"Limited Express",m:230},
+{hd:0,hu:"https://maps.app.goo.gl/ifpZwhm2fu9zLDhA8",pics:["img/gero-onsen-1.jpg","img/gero-onsen-2.jpg"],tn:"Hida Limited Express",tc:2500,c:"Gero Onsen",r:"Chubu / Nagano",ll:[35.8,137.24],n:1,acc:"Yunoshimakan",ac:30000,act:"Day 3: Osaka to Gero Onsen (direct Hida train if the schedule suits, else change at Nagoya); onsen evening",b:40000,t:"Limited Express",m:50},
+{hd:0,hu:"https://maps.app.goo.gl/FF51CxCNnCXtoCX98",pics:["img/takayama-1.jpg","img/takayama-2.jpg"],tn:"Nohi Bus (direct)",tc:4000,c:"Takayama",r:"Chubu / Nagano",ll:[36.14,137.25],n:3,acc:"Amaneki Hotel",ac:45000,act:"Day 4: afternoon in Takayama. Day 5: old town, morning market, Hida Folk Village. Day 6: Shinhotaka Ropeway day trip",b:90000,t:"Bus",m:150},
+{hd:0,hu:"https://maps.app.goo.gl/1JtSnRzV7bpuV8669",pics:["img/matsumoto-1.jpg"],tn:"Azusa Limited Express",tc:7000,c:"Matsumoto",r:"Chubu / Nagano",ll:[36.24,137.97],n:3,acc:"Dormy inn matsumoto",ac:36000,act:"Day 7: direct bus from Takayama. Day 8: Kamikochi day trip. Day 9: Matsumoto Castle, relaxed day or weather buffer",b:70000,t:"Limited Express",m:165},
+{hd:0,hu:"",pics:["img/tokyo-1.jpg"],c:"Tokyo",r:"Kanto",ll:[35.68,139.69],n:3,acc:"Sample: hotel in Shinjuku",ac:48000,act:"Day 10: Azusa train from Matsumoto. Days 11-12: Tokyo. Day 13: fly home from Tokyo",b:120000,t:"",m:0}
+];
+const TRIPS=[
+{pics:["img/kyoto-1.jpg"],tn:"JR Special Rapid",tc:580,c:"Kyoto",base:"Osaka",r:"Kansai",ll:[35.01,135.77],act:"Day 2: Kyoto, focus on one area",b:15000,t:"Local train",m:30},
+{pics:["img/shinhotaka-ropeway-1.jpg"],tn:"Nohi Bus to Shinhotaka",tc:2500,c:"Shinhotaka Ropeway",base:"Takayama",r:"Chubu / Nagano",ll:[36.28,137.55],act:"Day 6: Shinhotaka Ropeway; allow time at the ropeway",b:15000,t:"Bus",m:90},
+{pics:["img/kamikochi-1.jpg"],tn:"Train + Alpico bus to Kamikochi",tc:3000,c:"Kamikochi",base:"Matsumoto",r:"Chubu / Nagano",ll:[36.25,137.64],act:"Day 8: Kamikochi day trip",b:15000,t:"Bus",m:90}
+];
+const COL={"Shinkansen":"#d6336c","Limited Express":"#7048e8","Local train":"#1c7ed6","Bus":"#2f9e44","Car":"#e8590c"};
+// Rail legs follow station-to-station chains (approximate track shape, not survey-grade).
+const RAIL={
+"Osaka>Gero Onsen":[[34.7025,135.4959],[34.7335,135.5002],[34.9858,135.7588],[35.0033,135.8643],[35.123,136.097],[35.2761,136.2536],[35.315,136.2902],[35.3667,136.6155],[35.4097,136.7568],[35.4399,137.0104],[35.5415,137.147],[35.7439,137.1989],[35.8059,137.2397]],
+"Gero Onsen>Takayama":[[35.8059,137.2397],[35.8764,137.24],[35.9577,137.235],[36.05,137.25],[36.1411,137.2531]],
+"Matsumoto>Tokyo":[[36.23,137.965],[36.1118,137.954],[36.0553,138.0477],[35.9926,138.1585],[35.8571,138.3544],[35.7077,138.442],[35.6667,138.5686],[35.6118,138.9441],[35.6419,139.2822],[35.69,139.7006]],
+"Osaka>Kyoto":[[34.7025,135.4959],[34.7335,135.5002],[34.9858,135.7588]]
+};
+const ROAD_FALLBACK={"Takayama>Matsumoto":[[36.1411,137.2531],[36.19,137.55],[36.23,137.965]]};
+const yen=v=>"¥"+Math.round(v).toLocaleString("en-US");
+const dur=m=>m>=60?Math.floor(m/60)+"h"+(m%60?String(m%60).padStart(2,"0"):""):m+" min";
+const L_=k=>{const v=PIC[k];return Array.isArray(v)?v:(v?[v]:[])};
+const info=(a,from,to,each)=>({tn:a.tn||a.t,t:a.t,m:a.m,tc:a.tc,route:from+" \u2192 "+to,each});
+const legTip=(i,k)=>{const p=L_(k)[0];return `${p?`<img class="tt" src="${p}" alt="">`:""}<b>${i.tn}</b><br>${i.route}<br>${i.t} \u00b7 ${dur(i.m)}${i.each?" each way":""}<br>${i.tc!=null?yen(i.tc)+" (est.)":"cost n/a"}<br><i>Click for details and pictures</i>`};
+function carHTML(list){return `<div class="car">${list.length?`<div class="trk">${list.map(u=>`<img src="${u}" alt="">`).join("")}</div>${list.length>1?`<button class="nv pv">\u2039</button><button class="nv nx">\u203a</button>`:""}<span class="ct">1/${list.length}</span>`:`<div class="none">No picture yet</div>`}</div>`}
+function wireCar(d,key,L0,list,redraw){
+ const trk=d.querySelector(".trk"),ct=d.querySelector(".ct"),idx=()=>trk?Math.round(trk.scrollLeft/trk.clientWidth):0;
+ if(trk){trk.onscroll=()=>{ct.textContent=(idx()+1)+"/"+list.length};
+  const pv=d.querySelector(".pv"),nx=d.querySelector(".nx");
+  if(pv){pv.onclick=()=>trk.scrollBy({left:-trk.clientWidth,behavior:"smooth"});nx.onclick=()=>trk.scrollBy({left:trk.clientWidth,behavior:"smooth"})}}
+ const fi=d.querySelector("input");d.querySelector(".ad").onclick=()=>fi.click();
+ const rm=d.querySelector(".rm");if(rm)rm.onclick=()=>{const i=idx()-L0,a=L_(key);if(i<0){alert("This picture comes from the data file.");return}a.splice(i,1);PIC[key]=a;savePics();redraw()};
+ fi.onchange=async()=>{const a=L_(key);
+  for(const f of fi.files){await new Promise(res=>{const im=new Image();im.onload=()=>{const c=document.createElement("canvas"),sc=Math.min(1,640/im.width);c.width=im.width*sc;c.height=im.height*sc;c.getContext("2d").drawImage(im,0,0,c.width,c.height);a.push(c.toDataURL("image/jpeg",.8));res()};im.onerror=res;im.src=URL.createObjectURL(f)})}
+  PIC[key]=a;savePics();redraw()}}
+function legCard(i,k,gurl,ln){const d=document.createElement("div");d.className="pop";const list=L_(k);
+ d.innerHTML=carHTML(list)+`<h3>${i.tn}</h3><div class="rg">${i.route}</div><dl><dt>Type</dt><dd>${i.t}</dd><dt>Time</dt><dd>${dur(i.m)}${i.each?" each way":""}</dd><dt>Cost</dt><dd>${i.tc!=null?yen(i.tc)+" (est.)":"n/a"}</dd></dl><button class="ad">Add pictures</button>${list.length?"<button class='rm'>Remove this one</button>":""}<a href="${gurl}" target="_blank" rel="noopener">Google Maps</a><input type="file" accept="image/*" multiple hidden>`;
+ wireCar(d,k,0,list,()=>ln.setPopupContent(legCard(i,k,gurl,ln)));return d}
+function attach(ln,i,k,gurl){ln.bindTooltip(()=>legTip(i,k),{sticky:true,className:"leg"});ln.bindPopup(()=>legCard(i,k,gurl,ln),{maxWidth:280});hov(ln)}
+const hov=l=>{l.on("mouseover",()=>l.setStyle({weight:l.options.weight+4}));l.on("mouseout",()=>l.setStyle({weight:l.options.weight-4}))};
+const gm=(a,b)=>`https://www.google.com/maps/dir/?api=1&origin=${a.ll}&destination=${b.ll}&travelmode=transit`;
+let PIC={};try{PIC=JSON.parse(localStorage.getItem("jp-pics")||"{}")}catch(e){}
+const savePics=()=>{try{localStorage.setItem("jp-pics",JSON.stringify(PIC))}catch(e){alert("Could not save picture in this browser.")}};
+const map=L.map("map",{zoomControl:true}).setView([35.9,137.0],7);
+const CK="cb1_4dt6_1_b5fc5b5204dd3e9d89b2b612"; // CARTO key: visible in page source, keep the site private or restrict the key by domain
+const OSM="© OpenStreetMap contributors",CA=OSM+' © <a href="https://carto.com/attributions">CARTO</a>';
+const BASE={
+"Clean (CARTO Voyager)":L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png?key="+CK,{subdomains:"abcd",maxZoom:19,attribution:CA}),
+"Light grey (CARTO Positron)":L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png?key="+CK,{subdomains:"abcd",maxZoom:19,attribution:CA}),
+"English labels (GSI Japan)":L.tileLayer("https://cyberjapandata.gsi.go.jp/xyz/english/{z}/{x}/{y}.png",{minZoom:5,maxNativeZoom:11,maxZoom:18,attribution:'<a href="https://maps.gsi.go.jp/development/ichiran.html">GSI Japan</a>'}),
+"OpenStreetMap standard":L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:18,attribution:OSM})};
+BASE["Clean (CARTO Voyager)"].addTo(map);L.control.layers(BASE,null,{position:"topright"}).addTo(map);
+// real road routing via the public OSRM demo server (cached in this browser)
+async function road(a,b){const key="osrm:"+a.c+">"+b.c;
+ try{const c=localStorage.getItem(key);if(c)return JSON.parse(c)}catch(e){}
+ try{const r=await fetch(`https://router.project-osrm.org/route/v1/driving/${a.ll[1]},${a.ll[0]};${b.ll[1]},${b.ll[0]}?overview=full&geometries=geojson`);
+  const j=await r.json();const pts=j.routes[0].geometry.coordinates.map(p=>[p[1],p[0]]);
+  try{localStorage.setItem(key,JSON.stringify(pts))}catch(e){}return pts}catch(e){return null}}
+async function leg(a,b,dashed){
+ const k=a.c+">"+b.c;let pts=RAIL[k];
+ if(!pts&&a.t==="Bus")pts=await road(a,b)||ROAD_FALLBACK[k]||[a.ll,b.ll];
+ if(!pts)pts=[a.ll,b.ll];
+ const l=L.polyline(pts,{color:COL[a.t]||"#888",weight:dashed?4:6,opacity:.9,dashArray:dashed?"8 8":null}).addTo(map);
+ attach(l,info(a,a.c,b.c,false),"leg:"+a.c+">"+b.c,gm(a,b));return l}
+const hotel=s=>{if(!s.hd)return s.acc+" <i>(not booked)</i>";const u=s.hu||`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(s.acc+" "+s.c)}`;return `<a class="hl" href="${u}" target="_blank" rel="noopener">${s.acc}</a>`};
+function card(s){const d=document.createElement("div");d.className="pop";
+ const L0=(s.pics||[]).length,list=(s.pics||[]).concat(L_(s.c));
+ d.innerHTML=carHTML(list)+`<h3>${s.c}</h3><div class="rg">${s.r} · ${s.base?"Day trip from "+s.base:s.n+" night"+(s.n>1?"s":"")}</div>
+ <dl>${s.base?"":`<dt>Stay</dt><dd>${hotel(s)} (${yen(s.ac)})</dd>`}<dt>Do</dt><dd>${s.act}</dd><dt>Budget</dt><dd><b>${yen(s.b)}</b></dd>
+ ${s.t?`<dt>${s.base?"Travel":"Next"}</dt><dd>${s.tn||s.t}, ${dur(s.m)}${s.base?" each way":""}${s.tc!=null?", "+yen(s.tc)+" est.":""}</dd>`:""}</dl>
+ <button class="ad">Add pictures</button>${L_(s.c).length?"<button class='rm'>Remove this one</button>":""}<a href="${NOTION_URL}" target="_blank" rel="noopener">Edit in Notion</a>
+ <input type="file" accept="image/*" multiple hidden>`;
+ wireCar(d,s.c,L0,list,()=>s.mk.setPopupContent(card(s)));return d}
+(async()=>{
+ for(let i=0;i<STOPS.length-1;i++)await leg(STOPS[i],STOPS[i+1],false);
+ for(const t of TRIPS){const b=STOPS.find(s=>s.c===t.base);const k=b.c+">"+t.c;
+  if(t.c==="Kyoto"){const hk=L.polyline(RAIL["Osaka>Kyoto"],{color:COL["Local train"],weight:4,dashArray:"8 8"}).addTo(map);attach(hk,info(t,b.c,t.c,true),"leg:"+t.c,gm(b,t))}
+  else{const pts=await road(b,t)||[b.ll,t.ll];const rl=L.polyline(pts,{color:COL.Bus,weight:4,dashArray:"8 8"}).addTo(map);attach(rl,info(t,b.c,t.c,true),"leg:"+t.c,gm(b,t))}}
+})();
+STOPS.concat(TRIPS).forEach(s=>{
+ const tr=!!s.base;
+ const mk=L.marker(s.ll,{icon:L.divIcon({className:"",html:`<div class="stop ${tr?"t":""}"></div>`,iconSize:tr?[14,14]:[20,20]})}).addTo(map);
+ s.mk=mk;mk.bindPopup(()=>card(s),{maxWidth:280,autoPan:true});
+ mk.bindTooltip(s.c,{permanent:true,direction:"right",offset:[tr?8:12,0],className:"lbl"});
+ mk.on("mouseover",()=>mk.openPopup());});
+const all=STOPS.concat(TRIPS);
+document.getElementById("stats").innerHTML=`${STOPS.reduce((a,s)=>a+s.n,0)} nights · ${yen(all.reduce((a,s)=>a+s.b,0))} total budget · ${dur(STOPS.reduce((a,s)=>a+s.m,0))} in transit · ~${yen(STOPS.reduce((a,s)=>a+(s.tc||0),0)+2*TRIPS.reduce((a,s)=>a+(s.tc||0),0))} transport (est.)`;
+const lg=L.control({position:"bottomleft"});lg.onAdd=()=>{const d=L.DomUtil.create("div","legend");
+ d.innerHTML=Object.keys(COL).filter(k=>all.some(s=>s.t===k)).map(k=>`<div><i style="background:${COL[k]}"></i>${k}</div>`).join("")+"<div style='color:#6b7280;margin-top:4px'>Dashed = day trip. Hover a line for transport, time and cost; click it for pictures.</div>";return d};lg.addTo(map);
+map.fitBounds(L.latLngBounds(STOPS.map(s=>s.ll)).pad(.15));
+</script></body></html>
